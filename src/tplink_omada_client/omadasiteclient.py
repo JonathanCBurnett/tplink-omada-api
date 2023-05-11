@@ -1,6 +1,6 @@
 """Client for Omada Site requests."""
 
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Type
 from .omadaapiconnection import OmadaApiConnection
 
 from .devices import (
@@ -14,6 +14,13 @@ from .devices import (
     OmadaSwitchPort,
     OmadaSwitchPortDetails,
     OmadaAccesPointLanPortSettings,
+)
+
+from .clients import (
+    OmadaClientDevice,
+    OmadaWirelessClientDevice,
+    OmadaWiredClientDevice,
+    CreateOmadaClientDevice
 )
 
 from .exceptions import (
@@ -105,6 +112,50 @@ class OmadaSiteClient:
             for d in await self.get_devices()
             if d.type == "ap"
         ]
+
+    async def get_client_devices(self) -> List[Union[OmadaWirelessClientDevice, OmadaWiredClientDevice]]:
+        """Get the list of currently connected client devices on the site.
+        Note that non-active devices can only be obtained/updated individually via get_client_device().
+        """
+
+        # I don't believe there's a limit to the page size, but
+        # we'll limit the page size to 50 for now just in case
+        # someone has an unexpectedly large number of client devices
+        current_page = 1
+        page_size = 50
+        total_rows = 100
+        # For now, I don't think the api actually supports reporting anything
+        #  other than currently active devices, but I'm putting this here to
+        #  match docs online and what the web UI uses.
+        active_filter = "true"
+        clients = []
+        while total_rows > (current_page * page_size):
+            result = await self._api.request("get", self._api.format_url(
+                f"clients?currentPage={current_page}&currentPageSize={page_size}&filters.active={active_filter}", self._site_id)
+            )
+            current_page = result["currentPage"]
+            total_rows = result["totalRows"]
+            for device in result["data"]:
+                clients.append(CreateOmadaClientDevice(device))
+            
+        return clients
+
+    async def get_client_device(
+        self, mac_or_client: Union[str, OmadaClientDevice]
+    ) -> OmadaClientDevice:
+        """Get a client device by MAC address or (update) current client device."""
+
+        if isinstance(mac_or_client, OmadaClientDevice):
+            mac = mac_or_client.mac
+        else:
+            mac = mac_or_client
+        
+        result = await self._api.request(
+            "get", self._api.format_url(f"clients/{mac}", self._site_id)
+        )
+
+        return CreateOmadaClientDevice(result)
+
 
     async def get_access_point(
         self, mac_or_device: Union[str, OmadaDevice]

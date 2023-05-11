@@ -10,6 +10,8 @@ from . import (
     command_devices,
     command_switch,
     command_switches,
+    command_client,
+    command_clients,
     command_target,
     command_targets,
     command_default,
@@ -37,6 +39,8 @@ def main(argv: Union[Sequence[str], None] = None) -> int:
     command_switch.arg_parser(subparsers)
     command_switches.arg_parser(subparsers)
     command_switch_ports.arg_parser(subparsers)
+    command_client.arg_parser(subparsers)
+    command_clients.arg_parser(subparsers)
     command_target.arg_parser(subparsers)
     command_targets.arg_parser(subparsers)
     command_default.arg_parser(subparsers)

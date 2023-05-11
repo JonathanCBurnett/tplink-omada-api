@@ -110,3 +110,38 @@ class PoEMode(IntEnum):
     DISABLED = 0
     ENABLED = 1
     USE_DEVICE_SETTINGS = 2
+
+class ConnectedClientType(IntEnum):
+    """Type of connected client device."""
+
+    WIRELESS_GUEST = 0
+    WIRELESS_USER = 1
+    WIRED_USER = 2
+
+class WifiMode(IntEnum):
+    """Type of connected wifi mode."""
+
+    MODE_11a = 0
+    MODE_11b = 1
+    MODE_11g = 2
+    MODE_11na = 3
+    MODE_11ng = 4
+    MODE_11ac = 5
+    MODE_11axa = 6
+    MODE_11axg = 7
+
+class RadioID(IntEnum):
+    """GHz band of Radio."""
+
+    GHz2_4 = 0
+    GHz5_1 = 1
+    GHz5_2 = 2 # A bit unclear on difference between 5GHz-1 and 5GHz-2
+    GHz6 = 3
+
+class AuthStatus(IntEnum):
+    """Authentication Status."""
+
+    CONNECTED = 0 # Accessed without any authentication method
+    PENDING = 1 # Access to portal, but authentication failed
+    AUTHORIZED = 2 # Passed through port/other authentication
+    AUTH_FREE = 3 # No portal authentication required
